@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.nergal-perm</groupId>
+    <artifactId>testable-spring-http-wrappers</artifactId>
+    <version>0.0.1</version>
+    <packaging>jar</packaging>
+
+    <name>Spring Http clients testable wrappers</name>
+    <description>
+        Set of wrappers around Spring-provided http clients to make them testable according to "Testing without mocks" approach
+    </description>
+    <inceptionYear>2025</inceptionYear>
+    <url>https://github.com/Decision-Driven-Development/testable-spring-http-wrappers</url>
+    <organization>
+        <name>Eugene Terekhov</name>
+        <url>https://github.com/nergal-perm</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>
+                https://raw.githubusercontent.com/Decision-Driven-Development/testable-spring-http-wrappers/refs/heads/master/LICENSE
+            </url>
+            <distribution>site</distribution>
+            <comments>MIT License</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>1</id>
+            <name>Eugene Terekhov</name>
+            <email>nergal@psu.ru</email>
+            <url>https://github.com/nergal-perm</url>
+            <roles>
+                <role>Architect</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>+4</timezone>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <downloadUrl>https://central.sonatype.com/artifact/io.github.nergal-perm/testable-spring-http-wrappers</downloadUrl>
+        <repository>
+            <id>sonatype</id>
+            <name>Sonatype central repository</name>
+            <url>https://central.sonatype.com/artifact/io.github.nergal-perm/testable-spring-http-wrappers</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git@github.com:Decision-Driven-Development/testable-spring-http-wrappers.git</connection>
+        <developerConnection>git@github.com:Decision-Driven-Development/testable-spring-http-wrappers.git</developerConnection>
+        <url>https://github.com/Decision-Driven-Development/testable-spring-http-wrappers</url>
+    </scm>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>6.2.5</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.nergal-perm</groupId>
+            <artifactId>testable-io</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.nergal-perm</groupId>
+            <artifactId>output-tracking</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>newSonatype</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sources</id>
+                                <configuration>
+                                    <forceCreation>true</forceCreation>
+                                </configuration>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>javadoc</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <additionalOptions>${javadoc.opts}</additionalOptions>
+                                    <source>16</source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.4.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <tokenAuth>true</tokenAuth>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>doclint-java8-disable</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+            </properties>
+        </profile>
+        <profile>
+            <id>gpg-sign</id>
+            <activation>
+                <property>
+                    <name>gpg.keyname</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!--
+                        To GPG-sign the artifact before deployment to foreign
+                        repository. GPG keys have to be provided in CI
+                        environment, and published beforehand.
+                        @link http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/
+                        -->
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
